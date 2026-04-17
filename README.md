@@ -10,6 +10,8 @@ Co hosted by doggodgcodes
 
 <a href="https://premuim900.github.io/" target="_blank">My site</a>
 
+<hr>
+
 **Deployment time**
 
 Deployment time takes about ~30secs so just wiat that much and you shoud be able to load it with the changes also your browser might displayan older version for a few minutes
