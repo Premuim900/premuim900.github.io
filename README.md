@@ -1,6 +1,6 @@
 # premuim900.github.io
 
-The Premuim900 Official website!
+The Premuim900 Official website! There is a shop and it doesnt work right now
 
 Co hosted by doggodgcodes
 
