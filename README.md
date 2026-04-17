@@ -15,3 +15,5 @@ Co hosted by doggodgcodes
 **Deployment time**
 
 Deployment time takes about ~30secs so just wiat that much and you shoud be able to load it with the changes also your browser might displayan older version for a few minutes
+
+If CodeQL is added that adds like an extra minute or two
