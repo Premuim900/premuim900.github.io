@@ -1,6 +1,6 @@
 # premuim900.github.io
 
-<img src="https://avatars.githubusercontent.com/u/276368796">
+<img src="https://avatars.githubusercontent.com/u/276368796" style="width: 128px; height: 128px;">
 
 The Premuim900 Official website! There is a shop and it doesnt work right now
 
