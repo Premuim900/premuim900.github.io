@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="https://raw.githubusercontent.com/doggodgcodes/doggodgcodes/main/css.css">
+
 # premuim900.github.io
 
 <img src="https://avatars.githubusercontent.com/u/276368796" style="width: 128px; height: 128px;">
