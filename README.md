@@ -4,6 +4,8 @@
 
 <img src="https://avatars.githubusercontent.com/u/276368796" style="width: 128px; height: 128px;">
 
+100+ Commits! Mostly by doggodgcodes haha
+
 The Premuim900 Official website! There is a shop and it doesnt work right now
 
 Co hosted by doggodgcodes
