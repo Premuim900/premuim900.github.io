@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="https://raw.githubusercontent.com/doggodgcodes/doggodgcodes/main/css.css">
+<!--<link rel="stylesheet" href="https://raw.githubusercontent.com/doggodgcodes/doggodgcodes/main/css.css">-->
 
 # premuim900.github.io
 
@@ -21,6 +21,8 @@ Co hosted by doggodgcodes
 Deployment time takes about ~30secs so just wiat that much and you shoud be able to load it with the changes also your browser might displayan older version for a few minutes
 
 If CodeQL is added that adds like an extra minute or two
+
+If the commit thingy at the top is not green then dont push the next commit until the other one is done
 
 <hr>
 
