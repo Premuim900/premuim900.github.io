@@ -4,6 +4,13 @@
 
 <img src="https://avatars.githubusercontent.com/u/276368796" style="width: 128px; height: 128px;">
 
+<a href="https://github.com/Premuim900/premuim900.github.io/pulls">
+    <img alt="Pull requests" src="https://shields.io/github/issues-pr/Premuim900/premuim900.github.io">
+</a>
+<a href="https://github.com/Premuim900/premuim900.github.io/issues">
+    <img alt="Pull requests" src="https://shields.io/github/issues/Premuim900/premuim900.github.io">
+</a>
+
 100+ Commits! Mostly by doggodgcodes haha
 
 The Premuim900 Official website! There is a shop and it doesnt work right now
