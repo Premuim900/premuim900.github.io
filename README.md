@@ -10,6 +10,9 @@
 <a href="https://github.com/Premuim900/premuim900.github.io/issues">
     <img alt="Pull requests" src="https://shields.io/github/issues/Premuim900/premuim900.github.io">
 </a>
+<a href="https://github.com/Premuim900/premuim900.github.io/commits/main">
+    <img alt="Pull requests" src="https://shields.io/github/commits/Premuim900/premuim900.github.io">
+</a>
 
 100+ Commits! Mostly by doggodgcodes haha
 
