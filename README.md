@@ -36,6 +36,8 @@ If the commit thingy at the top is not green then dont push the next commit unti
 
 <hr>
 
+<!--
 **Zero AI**
 
 You will not find ai here
+-->
