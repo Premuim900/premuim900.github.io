@@ -3,81 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel-Art Maze Game</title>
+    <title>Maze Game</title>
     <style>
-        body { background-color: #000; color: #fff; font-family: Arial, sans-serif; }
-        canvas { border: 1px solid #fff; }
-        #gameArea { position: relative; }
-        .key { position: absolute; width: 20px; height: 20px; }
-        .blue { background-color: blue; }
-        .red { background-color: red; }
-        .green { background-color: green; }
-        .bear { position: absolute; width: 20px; height: 20px; background-color: brown; }
-        .player { position: absolute; width: 20px; height: 20px; background-color: yellow; }
+        body { margin: 0; background: #000; }
+        canvas { display: block; margin: 0 auto; }
     </style>
 </head>
 <body>
-    <h1>Pixel-Art Maze Game</h1>
-    <div id="gameArea" style="width: 400px; height: 400px; position: relative;">
-        <div class="player" id="player" style="left: 20px; top: 20px;"></div>
-        <div class="key blue" style="left: 100px; top: 100px;"></div>
-        <div class="key red" style="left: 200px; top: 150px;"></div>
-        <div class="key green" style="left: 300px; top: 200px;"></div>
-        <div class="bear" id="bear1" style="left: 300px; top: 300px;"></div>
-        <div class="bear" id="bear2" style="left: 250px; top: 300px;"></div>
-        <div class="bear" id="bear3" style="left: 200px; top: 300px;"></div>
-    </div>
+    <canvas id="gameCanvas"></canvas>
     <script>
-        const player = document.getElementById('player');
-        const bears = [document.getElementById('bear1'), document.getElementById('bear2'), document.getElementById('bear3')];
-        const keys = document.querySelectorAll('.key');
-        let playerPosition = { x: 20, y: 20 };
-        let keysCollected = 0;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        document.addEventListener('keydown', (event) => {
-            const keyMappings = {
-                ArrowUp: { x: 0, y: -20 },
-                ArrowDown: { x: 0, y: 20 },
-                ArrowLeft: { x: -20, y: 0 },
-                ArrowRight: { x: 20, y: 0 }
-            };
-            if (keyMappings[event.key]) {
-                playerPosition.x += keyMappings[event.key].x;
-                playerPosition.y += keyMappings[event.key].y;
-                player.style.left = playerPosition.x + 'px';
-                player.style.top = playerPosition.y + 'px';
+        let state = 'start';  // Game states: start, play, gameOver
+        let player, enemies, keys, exit;
+        let collectedKeys = [];
 
-                keys.forEach((key) => {
-                    if (isColliding(player, key)) {
-                        key.remove();
-                        keysCollected++;
-                        console.log('Keys collected:', keysCollected);
-                    }
-                });
-                moveBears();
-            }
-        });
-
-        function isColliding(player, key) {
-            const playerRect = player.getBoundingClientRect();
-            const keyRect = key.getBoundingClientRect();
-            return !(
-                playerRect.right < keyRect.left ||
-                playerRect.left > keyRect.right ||
-                playerRect.bottom < keyRect.top ||
-                playerRect.top > keyRect.bottom
-            );
+        // Initialize the game
+        function init() {
+            player = { x: 50, y: 50, size: 20, color: 'yellow' };
+            enemies = [{ x: 200, y: 50, size: 20, color: 'brown', path: [] },
+                       { x: 400, y: 50, size: 20, color: 'brown', path: [] },
+                       { x: 300, y: 300, size: 20, color: 'brown', path: [] }];
+            keys = [{ x: 100, y: 100, color: 'red' },
+                     { x: 400, y: 300, color: 'green' },
+                     { x: 600, y: 200, color: 'blue' }];
+            exit = { x: 700, y: 500, unlocked: false };
+            collectedKeys = [];
         }
 
-        function moveBears() {
-            bears.forEach(bear => {
-                const bearRect = bear.getBoundingClientRect();
-                const dx = playerPosition.x - bearRect.x;
-                const dy = playerPosition.y - bearRect.y;
-                bear.style.left = (bearRect.x + (dx > 0 ? 1 : -1)) + 'px';
-                bear.style.top = (bearRect.y + (dy > 0 ? 1 : -1)) + 'px';
+        // Game loop
+        function gameLoop() {
+            update();
+            render();
+            if (state === 'play') {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Update game state
+        function update() {
+            handleInput();
+            moveEnemies();
+            checkCollisions();
+        }
+
+        // Render game elements
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (state === 'start') {
+                renderStartScreen();
+            } else if (state === 'gameOver') {
+                renderGameOver();
+            } else if (state === 'play') {
+                renderPlayer();
+                renderEnemies();
+                renderKeys();
+                renderExit();
+            }
+        }
+
+        // Handle player input
+        function handleInput() {
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp' || e.key === 'w') player.y -= 5;
+                if (e.key === 'ArrowDown' || e.key === 's') player.y += 5;
+                if (e.key === 'ArrowLeft' || e.key === 'a') player.x -= 5;
+                if (e.key === 'ArrowRight' || e.key === 'd') player.x += 5;
+                if (state === 'start') state = 'play';
             });
         }
+
+        // Move enemies with pathfinding
+        function moveEnemies() {
+            enemies.forEach(enemy => {
+                enemy.path = aStar(enemy, player);
+                if (enemy.path.length) {
+                    enemy.x += Math.sign(player.x - enemy.x) * 2;
+                    enemy.y += Math.sign(player.y - enemy.y) * 2;
+                }
+            });
+        }
+
+        // A* pathfinding algorithm placeholder
+        function aStar(start, goal) {
+            return [];  // Implement A* algorithm here
+        }
+
+        // Check for collisions
+        function checkCollisions() {
+            enemies.forEach(enemy => {
+                if (Math.abs(player.x - enemy.x) < player.size && Math.abs(player.y - enemy.y) < player.size) {
+                    state = 'gameOver';
+                }
+            });
+            keys = keys.filter(key => {
+                if (Math.abs(player.x - key.x) < player.size && Math.abs(player.y - key.y) < player.size) {
+                    collectedKeys.push(key.color);
+                    return false;
+                }
+                return true;
+            });
+            if (collectedKeys.length === 3) {
+                exit.unlocked = true;
+            }
+        }
+
+        // Render functions
+        function renderPlayer() { ctx.fillStyle = player.color; ctx.fillRect(player.x, player.y, player.size, player.size); }
+        function renderEnemies() { enemies.forEach(enemy => { ctx.fillStyle = enemy.color; ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size); }); }
+        function renderKeys() { keys.forEach(key => { ctx.fillStyle = key.color; ctx.fillRect(key.x, key.y, 20, 20); }); }
+        function renderExit() { ctx.fillStyle = exit.unlocked ? 'gold' : 'gray'; ctx.fillRect(exit.x, exit.y, 50, 50); }
+
+        // Start and game over screens
+        function renderStartScreen() { ctx.fillStyle = 'white'; ctx.fillText('Press any key to start', 100, 100); }
+        function renderGameOver() { ctx.fillStyle = 'red'; ctx.fillText('Game Over', 100, 100); }
+
+        // Initialize and start game
+        init();
+        gameLoop();
     </script>
 </body>
 </html>
