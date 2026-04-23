@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel-Art Maze Game</title>
+    <style>
+        body { background-color: #000; color: #fff; font-family: Arial, sans-serif; }
+        canvas { border: 1px solid #fff; }
+        #gameArea { position: relative; }
+        .key { position: absolute; width: 20px; height: 20px; }
+        .blue { background-color: blue; }
+        .red { background-color: red; }
+        .green { background-color: green; }
+        .bear { position: absolute; width: 20px; height: 20px; background-color: brown; }
+        .player { position: absolute; width: 20px; height: 20px; background-color: yellow; }
+    </style>
+</head>
+<body>
+    <h1>Pixel-Art Maze Game</h1>
+    <div id="gameArea" style="width: 400px; height: 400px; position: relative;">
+        <div class="player" id="player" style="left: 20px; top: 20px;"></div>
+        <div class="key blue" style="left: 100px; top: 100px;"></div>
+        <div class="key red" style="left: 200px; top: 150px;"></div>
+        <div class="key green" style="left: 300px; top: 200px;"></div>
+        <div class="bear" id="bear1" style="left: 300px; top: 300px;"></div>
+        <div class="bear" id="bear2" style="left: 250px; top: 300px;"></div>
+        <div class="bear" id="bear3" style="left: 200px; top: 300px;"></div>
+    </div>
+    <script>
+        const player = document.getElementById('player');
+        const bears = [document.getElementById('bear1'), document.getElementById('bear2'), document.getElementById('bear3')];
+        const keys = document.querySelectorAll('.key');
+        let playerPosition = { x: 20, y: 20 };
+        let keysCollected = 0;
+
+        document.addEventListener('keydown', (event) => {
+            const keyMappings = {
+                ArrowUp: { x: 0, y: -20 },
+                ArrowDown: { x: 0, y: 20 },
+                ArrowLeft: { x: -20, y: 0 },
+                ArrowRight: { x: 20, y: 0 }
+            };
+            if (keyMappings[event.key]) {
+                playerPosition.x += keyMappings[event.key].x;
+                playerPosition.y += keyMappings[event.key].y;
+                player.style.left = playerPosition.x + 'px';
+                player.style.top = playerPosition.y + 'px';
+
+                keys.forEach((key) => {
+                    if (isColliding(player, key)) {
+                        key.remove();
+                        keysCollected++;
+                        console.log('Keys collected:', keysCollected);
+                    }
+                });
+                moveBears();
+            }
+        });
+
+        function isColliding(player, key) {
+            const playerRect = player.getBoundingClientRect();
+            const keyRect = key.getBoundingClientRect();
+            return !(
+                playerRect.right < keyRect.left ||
+                playerRect.left > keyRect.right ||
+                playerRect.bottom < keyRect.top ||
+                playerRect.top > keyRect.bottom
+            );
+        }
+
+        function moveBears() {
+            bears.forEach(bear => {
+                const bearRect = bear.getBoundingClientRect();
+                const dx = playerPosition.x - bearRect.x;
+                const dy = playerPosition.y - bearRect.y;
+                bear.style.left = (bearRect.x + (dx > 0 ? 1 : -1)) + 'px';
+                bear.style.top = (bearRect.y + (dy > 0 ? 1 : -1)) + 'px';
+            });
+        }
+    </script>
+</body>
+</html>
