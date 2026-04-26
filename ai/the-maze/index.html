@@ -24,12 +24,12 @@
         // Initialize the game
         function init() {
             player = { x: 50, y: 50, size: 20, color: 'yellow' };
-            enemies = [{ x: 200, y: 50, size: 20, color: 'brown', path: [] },
-                       { x: 400, y: 50, size: 20, color: 'brown', path: [] },
-                       { x: 300, y: 300, size: 20, color: 'brown', path: [] }];
+            enemies = [{ x: 200, y: 50, size: 20, color: 'brown' },
+                       { x: 400, y: 50, size: 20, color: 'brown' },
+                       { x: 300, y: 300, size: 20, color: 'brown' }];
             keys = [{ x: 100, y: 100, color: 'red' },
-                     { x: 400, y: 300, color: 'green' },
-                     { x: 600, y: 200, color: 'blue' }];
+                    { x: 400, y: 300, color: 'green' },
+                    { x: 600, y: 200, color: 'blue' }];
             exit = { x: 700, y: 500, unlocked: false };
             collectedKeys = [];
         }
@@ -66,7 +66,10 @@
 
         // Handle player input
         function handleInput(e) {
-            if (state === 'start') state = 'play';
+            if (state === 'start') {
+                state = 'play';
+                gameLoop();
+            }
 
             if (e.key === 'ArrowUp' || e.key === 'w') player.y = Math.max(0, player.y - 5);
             if (e.key === 'ArrowDown' || e.key === 's') player.y = Math.min(canvas.height - player.size, player.y + 5);
@@ -85,6 +88,7 @@
 
         // Check for collisions
         function checkCollisions() {
+            // Enemy collision
             for (const enemy of enemies) {
                 if (
                     player.x < enemy.x + enemy.size &&
@@ -95,6 +99,8 @@
                     state = 'gameOver';
                 }
             }
+
+            // Key collection
             keys = keys.filter(key => {
                 if (
                     player.x < key.x + 20 &&
@@ -107,16 +113,34 @@
                 }
                 return true;
             });
+
+            // Check if exit is unlocked
             if (collectedKeys.length === 3) {
                 exit.unlocked = true;
             }
         }
 
         // Render functions
-        function renderPlayer() { ctx.fillStyle = player.color; ctx.fillRect(player.x, player.y, player.size, player.size); }
-        function renderEnemies() { enemies.forEach(enemy => ctx.fillStyle = enemy.color, ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size)); }
-        function renderKeys() { keys.forEach(key => ctx.fillStyle = key.color, ctx.fillRect(key.x, key.y, 20, 20)); }
-        function renderExit() { ctx.fillStyle = exit.unlocked ? 'gold' : 'gray'; ctx.fillRect(exit.x, exit.y, 50, 50); }
+        function renderPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+        }
+        function renderEnemies() {
+            enemies.forEach(enemy => {
+                ctx.fillStyle = enemy.color;
+                ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
+            });
+        }
+        function renderKeys() {
+            keys.forEach(key => {
+                ctx.fillStyle = key.color;
+                ctx.fillRect(key.x, key.y, 20, 20);
+            });
+        }
+        function renderExit() {
+            ctx.fillStyle = exit.unlocked ? 'gold' : 'gray';
+            ctx.fillRect(exit.x, exit.y, 50, 50);
+        }
 
         // Centered start and game over screens
         function renderStartScreen() {
@@ -132,9 +156,9 @@
             ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
         }
 
-        // Initialize and start game
+        // Initialize the game
         init();
-        gameLoop();
+        renderStartScreen();
     </script>
 </body>
 </html>
