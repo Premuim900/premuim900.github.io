@@ -45,7 +45,6 @@
 
         // Update game state
         function update() {
-            handleInput();
             moveEnemies();
             checkCollisions();
         }
@@ -66,41 +65,43 @@
         }
 
         // Handle player input
-        function handleInput() {
-            window.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowUp' || e.key === 'w') player.y -= 5;
-                if (e.key === 'ArrowDown' || e.key === 's') player.y += 5;
-                if (e.key === 'ArrowLeft' || e.key === 'a') player.x -= 5;
-                if (e.key === 'ArrowRight' || e.key === 'd') player.x += 5;
-                if (state === 'start') state = 'play';
-            });
-        }
+        function handleInput(e) {
+            if (state === 'start') state = 'play';
 
-        // Move enemies with pathfinding
+            if (e.key === 'ArrowUp' || e.key === 'w') player.y = Math.max(0, player.y - 5);
+            if (e.key === 'ArrowDown' || e.key === 's') player.y = Math.min(canvas.height - player.size, player.y + 5);
+            if (e.key === 'ArrowLeft' || e.key === 'a') player.x = Math.max(0, player.x - 5);
+            if (e.key === 'ArrowRight' || e.key === 'd') player.x = Math.min(canvas.width - player.size, player.x + 5);
+        }
+        window.addEventListener('keydown', handleInput);
+
+        // Move enemies towards the player
         function moveEnemies() {
-            enemies.forEach(enemy => {
-                enemy.path = aStar(enemy, player);
-                if (enemy.path.length) {
-                    enemy.x += Math.sign(player.x - enemy.x) * 2;
-                    enemy.y += Math.sign(player.y - enemy.y) * 2;
-                }
-            });
-        }
-
-        // A* pathfinding algorithm placeholder
-        function aStar(start, goal) {
-            return [];  // Implement A* algorithm here
+            for (const enemy of enemies) {
+                enemy.x += Math.sign(player.x - enemy.x) * 2;
+                enemy.y += Math.sign(player.y - enemy.y) * 2;
+            }
         }
 
         // Check for collisions
         function checkCollisions() {
-            enemies.forEach(enemy => {
-                if (Math.abs(player.x - enemy.x) < player.size && Math.abs(player.y - enemy.y) < player.size) {
+            for (const enemy of enemies) {
+                if (
+                    player.x < enemy.x + enemy.size &&
+                    player.x + player.size > enemy.x &&
+                    player.y < enemy.y + enemy.size &&
+                    player.y + player.size > enemy.y
+                ) {
                     state = 'gameOver';
                 }
-            });
+            }
             keys = keys.filter(key => {
-                if (Math.abs(player.x - key.x) < player.size && Math.abs(player.y - key.y) < player.size) {
+                if (
+                    player.x < key.x + 20 &&
+                    player.x + player.size > key.x &&
+                    player.y < key.y + 20 &&
+                    player.y + player.size > key.y
+                ) {
                     collectedKeys.push(key.color);
                     return false;
                 }
@@ -113,13 +114,23 @@
 
         // Render functions
         function renderPlayer() { ctx.fillStyle = player.color; ctx.fillRect(player.x, player.y, player.size, player.size); }
-        function renderEnemies() { enemies.forEach(enemy => { ctx.fillStyle = enemy.color; ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size); }); }
-        function renderKeys() { keys.forEach(key => { ctx.fillStyle = key.color; ctx.fillRect(key.x, key.y, 20, 20); }); }
+        function renderEnemies() { enemies.forEach(enemy => ctx.fillStyle = enemy.color, ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size)); }
+        function renderKeys() { keys.forEach(key => ctx.fillStyle = key.color, ctx.fillRect(key.x, key.y, 20, 20)); }
         function renderExit() { ctx.fillStyle = exit.unlocked ? 'gold' : 'gray'; ctx.fillRect(exit.x, exit.y, 50, 50); }
 
-        // Start and game over screens
-        function renderStartScreen() { ctx.fillStyle = 'white'; ctx.fillText('Press any key to start', 100, 100); }
-        function renderGameOver() { ctx.fillStyle = 'red'; ctx.fillText('Game Over', 100, 100); }
+        // Centered start and game over screens
+        function renderStartScreen() {
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.font = '24px Arial';
+            ctx.fillText('Press any key to start', canvas.width / 2, canvas.height / 2);
+        }
+        function renderGameOver() {
+            ctx.fillStyle = 'red';
+            ctx.textAlign = 'center';
+            ctx.font = '24px Arial';
+            ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
+        }
 
         // Initialize and start game
         init();
