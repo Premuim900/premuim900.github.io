@@ -12,6 +12,7 @@
 <body>
     <canvas id="gameCanvas"></canvas>
     <script>
+        const speed = 20;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
@@ -71,10 +72,10 @@
                 gameLoop();
             }
 
-            if (e.key === 'ArrowUp' || e.key === 'w') player.y = Math.max(0, player.y - 5);
-            if (e.key === 'ArrowDown' || e.key === 's') player.y = Math.min(canvas.height - player.size, player.y + 5);
-            if (e.key === 'ArrowLeft' || e.key === 'a') player.x = Math.max(0, player.x - 5);
-            if (e.key === 'ArrowRight' || e.key === 'd') player.x = Math.min(canvas.width - player.size, player.x + 5);
+            if (e.key === 'ArrowUp' || e.key === 'w') player.y = Math.max(0, player.y - speed);
+            if (e.key === 'ArrowDown' || e.key === 's') player.y = Math.min(canvas.height - player.size, player.y + speed);
+            if (e.key === 'ArrowLeft' || e.key === 'a') player.x = Math.max(0, player.x - speed);
+            if (e.key === 'ArrowRight' || e.key === 'd') player.x = Math.min(canvas.width - player.size, player.x + speed);
         }
         window.addEventListener('keydown', handleInput);
 
