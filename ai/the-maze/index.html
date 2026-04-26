@@ -26,13 +26,16 @@
         canvas.height = window.innerHeight;
 
         const speed = 4; // Smooth movement speed
-        let state = 'start';  // Game states: start, play, gameOver
+        let state = 'start';  // Game states: start, play, gameOver, win
         let player, enemies, keys, exit;
         let collectedKeys = [];
         let moveX = 0, moveY = 0;
 
+        // Initialize win counter
+        let winCount = parseInt(localStorage.getItem('winCount')) || 0;
+
         window.addEventListener('keydown', (e) => {
-            if (state === 'gameOver' && e.key.toLowerCase() === 'r') {
+            if (e.key.toLowerCase() === 'r' && state === 'gameOver') {
                 init();
                 state = 'start';
                 renderStartScreen();
@@ -48,6 +51,12 @@
             if (e.key === 'ArrowDown' || e.key === 's') moveY = speed;
             if (e.key === 'ArrowLeft' || e.key === 'a') moveX = -speed;
             if (e.key === 'ArrowRight' || e.key === 'd') moveX = speed;
+
+            if (state === 'win' && e.key.toLowerCase() === 'r') {
+                init();
+                state = 'start';
+                renderStartScreen();
+            }
         });
 
         window.addEventListener('keyup', (e) => {
@@ -97,6 +106,8 @@
                 renderEnemies();
                 renderKeys();
                 renderExit();
+            } else if (state === 'win') {
+                renderWinScreen();
             }
         }
 
@@ -111,7 +122,6 @@
         // Check for collisions
         function checkCollisions() {
             // Enemy collision
-            // AABB collision detection
             for (const enemy of enemies) {
                 if (
                     player.x < enemy.x + enemy.size &&
@@ -141,6 +151,19 @@
             if (collectedKeys.length === 3) {
                 exit.unlocked = true;
             }
+
+            // Check if player reaches unlocked exit
+            if (
+                exit.unlocked &&
+                player.x < exit.x + 50 &&
+                player.x + player.size > exit.x &&
+                player.y < exit.y + 50 &&
+                player.y + player.size > exit.y
+            ) {
+                state = 'win';
+                winCount++;
+                localStorage.setItem('winCount', winCount);
+            }
         }
 
         // Render functions
@@ -148,38 +171,53 @@
             ctx.fillStyle = player.color;
             ctx.fillRect(player.x, player.y, player.size, player.size);
         }
+
         function renderEnemies() {
             enemies.forEach(enemy => {
                 ctx.fillStyle = enemy.color;
                 ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
             });
         }
+
         function renderKeys() {
             keys.forEach(key => {
                 ctx.fillStyle = key.color;
                 ctx.fillRect(key.x, key.y, 20, 20);
             });
         }
+
         function renderExit() {
             ctx.fillStyle = exit.unlocked ? 'gold' : 'gray';
             ctx.fillRect(exit.x, exit.y, 50, 50);
         }
 
-        // Centered start and game over screens
+        // Render start screen
         function renderStartScreen() {
             ctx.fillStyle = 'white';
             ctx.textAlign = 'center';
             ctx.font = '24px Silkscreen, monospace';
             ctx.fillText('Press any key to start', canvas.width / 2, canvas.height / 2);
-            ctx.fillText('Controls: W, A, S, D, Shift', canvas.width / 2, canvas.height / 2 + 50);
-            ctx.fillText('Press R to restart after game over', canvas.width / 2, canvas.height / 2 + 100);
+            ctx.fillText('Controls: W, A, S, D', canvas.width / 2, canvas.height / 2 + 50);
+            ctx.fillText('Win Count: ' + winCount, canvas.width / 2, canvas.height / 2 + 100);
         }
+
+        // Render game over screen
         function renderGameOver() {
             ctx.fillStyle = 'red';
             ctx.textAlign = 'center';
             ctx.font = '24px Silkscreen, monospace';
             ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
             ctx.fillText('Press R to restart', canvas.width / 2, canvas.height / 2 + 50);
+        }
+
+        // Render win screen
+        function renderWinScreen() {
+            ctx.fillStyle = 'green';
+            ctx.textAlign = 'center';
+            ctx.font = '24px Silkscreen, monospace';
+            ctx.fillText('You Win!', canvas.width / 2, canvas.height / 2);
+            ctx.fillText('Press R to restart', canvas.width / 2, canvas.height / 2 + 50);
+            ctx.fillText('Win Count: ' + winCount, canvas.width / 2, canvas.height / 2 + 100);
         }
 
         // Initialize the game
