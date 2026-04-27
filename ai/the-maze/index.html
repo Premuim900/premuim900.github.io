@@ -25,9 +25,10 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        const speed = 4; // Smooth movement speed
-        let state = 'start';  // Game states: start, play, gameOver, win
-        let player, enemies, keys, exit;
+        const speed = 4; // Smooth movement speed for player
+        const enemySpeed = 1; // Slower movement speed for enemies
+        let state = 'start';  // Game states
+        let player, enemies, keys, exit, walls;
         let collectedKeys = [];
         let moveX = 0, moveY = 0;
 
@@ -75,6 +76,12 @@
                     { x: 600, y: 200, color: 'blue' }];
             exit = { x: 700, y: 500, unlocked: false };
             collectedKeys = [];
+            walls = [
+                { x: 100, y: 100, width: 500, height: 20 },
+                { x: 200, y: 200, width: 20, height: 300 },
+                { x: 300, y: 150, width: 300, height: 20 },
+                { x: 500, y: 300, width: 20, height: 200 }
+            ];
         }
 
         // Game loop
@@ -88,38 +95,55 @@
 
         // Update game state
         function update() {
-            player.x = Math.max(0, Math.min(canvas.width - player.size, player.x + moveX));
-            player.y = Math.max(0, Math.min(canvas.height - player.size, player.y + moveY));
+            movePlayer();
             moveEnemies();
             checkCollisions();
         }
 
-        // Render game elements
-        function render() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (state === 'start') {
-                renderStartScreen();
-            } else if (state === 'gameOver') {
-                renderGameOver();
-            } else if (state === 'play') {
-                renderPlayer();
-                renderEnemies();
-                renderKeys();
-                renderExit();
-            } else if (state === 'win') {
-                renderWinScreen();
+        // Move player with wall collision
+        function movePlayer() {
+            const nextX = player.x + moveX;
+            const nextY = player.y + moveY;
+
+            if (!checkWallCollision(nextX, player.y, player.size, player.size)) {
+                player.x = nextX;
+            }
+            if (!checkWallCollision(player.x, nextY, player.size, player.size)) {
+                player.y = nextY;
             }
         }
 
-        // Move enemies towards the player
+        // Move enemies with wall collision
         function moveEnemies() {
             for (const enemy of enemies) {
-                enemy.x += Math.sign(player.x - enemy.x) * 2;
-                enemy.y += Math.sign(player.y - enemy.y) * 2;
+                const moveToX = enemy.x + Math.sign(player.x - enemy.x) * enemySpeed;
+                const moveToY = enemy.y + Math.sign(player.y - enemy.y) * enemySpeed;
+
+                if (!checkWallCollision(moveToX, enemy.y, enemy.size, enemy.size)) {
+                    enemy.x = moveToX;
+                }
+                if (!checkWallCollision(enemy.x, moveToY, enemy.size, enemy.size)) {
+                    enemy.y = moveToY;
+                }
             }
         }
 
-        // Check for collisions
+        // Check for wall collision
+        function checkWallCollision(x, y, width, height) {
+            for (const wall of walls) {
+                if (
+                    x < wall.x + wall.width &&
+                    x + width > wall.x &&
+                    y < wall.y + wall.height &&
+                    y + height > wall.y
+                ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Check for other collisions
         function checkCollisions() {
             // Enemy collision
             for (const enemy of enemies) {
@@ -166,6 +190,24 @@
             }
         }
 
+        // Render game elements
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (state === 'start') {
+                renderStartScreen();
+            } else if (state === 'gameOver') {
+                renderGameOver();
+            } else if (state === 'play') {
+                renderPlayer();
+                renderEnemies();
+                renderKeys();
+                renderExit();
+                renderWalls();
+            } else if (state === 'win') {
+                renderWinScreen();
+            }
+        }
+
         // Render functions
         function renderPlayer() {
             ctx.fillStyle = player.color;
@@ -189,6 +231,13 @@
         function renderExit() {
             ctx.fillStyle = exit.unlocked ? 'gold' : 'gray';
             ctx.fillRect(exit.x, exit.y, 50, 50);
+        }
+
+        function renderWalls() {
+            ctx.fillStyle = 'gray';
+            walls.forEach(wall => {
+                ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+            });
         }
 
         // Render start screen
