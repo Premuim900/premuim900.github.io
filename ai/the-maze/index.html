@@ -36,7 +36,7 @@
         let winCount = parseInt(localStorage.getItem('winCount')) || 0;
 
         window.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 'r' && state === 'gameOver') {
+            if (e.key.toLowerCase() === 'r' && (state === 'gameOver' || state === 'win' || state === 'play')) {
                 init();
                 state = 'start';
                 renderStartScreen();
@@ -52,12 +52,6 @@
             if (e.key === 'ArrowDown' || e.key === 's') moveY = speed;
             if (e.key === 'ArrowLeft' || e.key === 'a') moveX = -speed;
             if (e.key === 'ArrowRight' || e.key === 'd') moveX = speed;
-
-            if (state === 'win' && e.key.toLowerCase() === 'r') {
-                init();
-                state = 'start';
-                renderStartScreen();
-            }
         });
 
         window.addEventListener('keyup', (e) => {
@@ -80,7 +74,11 @@
                 { x: 100, y: 100, width: 500, height: 20 },
                 { x: 200, y: 200, width: 20, height: 300 },
                 { x: 300, y: 150, width: 300, height: 20 },
-                { x: 500, y: 300, width: 20, height: 200 }
+                { x: 500, y: 300, width: 20, height: 200 },
+                { x: 400, y: 400, width: 200, height: 20 }, // New wall
+                { x: 50, y: 350, width: 150, height: 20 }, // New wall
+                { x: 250, y: 500, width: 300, height: 20 }, // New wall
+                { x: 600, y: 50, width: 20, height: 150 }, // New wall
             ];
         }
 
@@ -275,3 +273,4 @@
     </script>
 </body>
 </html>
+```*](#)
