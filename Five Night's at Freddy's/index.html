@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FNAF Mini v9 - Phone Guy Enhanced</title>
+  <title>FNAF Mini v11 - Ultimate</title>
   <style>
     body { font-family: 'Courier New', monospace; background: #000; color: #ff2222; text-align: center; margin: 0; overflow: hidden; }
     h1 { color: #ff0000; text-shadow: 0 0 40px red; font-size: 42px; margin: 8px; }
-    #game { width: 1020px; margin: 10px auto; }
+    #game { width: 1050px; margin: 10px auto; }
     #office { width: 100%; height: 560px; background: linear-gradient(#1f1f1f, #0a0a0a); border: 10px solid #cc0000; position: relative; box-shadow: 0 0 50px #ff0000; }
     #status { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.95); padding: 15px 40px; border: 4px solid #ff0000; font-size: 24px; min-width: 500px; }
-    #phoneguy { margin: 15px; color: #00ffcc; font-style: italic; font-size: 19px; min-height: 60px; }
+    #phoneguy { margin: 15px; color: #00ffcc; font-style: italic; font-size: 18px; min-height: 75px; }
     #info { color: #ffff00; font-size: 26px; margin: 15px; text-shadow: 0 0 15px yellow; }
     button { padding: 16px 26px; margin: 8px; background: #220000; color: #ff8888; border: 4px solid #ff0000; font-size: 18px; cursor: pointer; font-weight: bold; }
     button:hover { background: #550000; transform: scale(1.08); }
@@ -20,7 +20,7 @@
 </head>
 <body>
 
-  <h1>★ FIVE NIGHTS AT FREDDY'S v9 ★</h1>
+  <h1>★ FIVE NIGHTS AT FREDDY'S v11 ★</h1>
   <p id="nightDisplay" style="font-size:28px; color:#ff5555;">Night 1</p>
 
   <div id="game">
@@ -35,10 +35,22 @@
     </div>
 
     <button onclick="toggleCamera()">📷 CAMERAS</button>
+    <button onclick="useFlashlight()">🔦 FLASHLIGHT</button>
     <button onclick="closeLeft()">LEFT DOOR</button>
     <button onclick="closeRight()">RIGHT DOOR</button>
     <button onclick="checkCameras()">CHECK CAMERAS</button>
     <button onclick="customNightMenu()">CUSTOM NIGHT</button>
+  </div>
+
+  <!-- Custom Night Menu -->
+  <div id="customMenu" style="display:none; background:#111; padding:20px; margin:20px auto; width:600px; border:4px solid red;">
+    <h2>CUSTOM NIGHT</h2>
+    <p>Freddy: <input type="range" id="freddy" min="0" max="20" value="12"></p>
+    <p>Bonnie: <input type="range" id="bonnie" min="0" max="20" value="14"></p>
+    <p>Chica: <input type="range" id="chica" min="0" max="20" value="13"></p>
+    <p>Foxy: <input type="range" id="foxy" min="0" max="20" value="15"></p>
+    <p>Golden Freddy: <input type="range" id="golden" min="0" max="20" value="8"></p>
+    <button onclick="startCustomNight()">START CUSTOM NIGHT</button>
   </div>
 
   <div class="jumpscare" id="jumpscare">
@@ -57,30 +69,37 @@
 
     const doorSound = new Audio("https://freesound.org/data/previews/276/276951_5123854-lq.mp3");
     const scareSound = new Audio("https://freesound.org/data/previews/342/342749_3248244-lq.mp3");
+    const ambient = new Audio("https://freesound.org/data/previews/612/612095_5674468-lq.mp3");
+    ambient.loop = true;
+    ambient.volume = 0.35;
+    ambient.play();
 
-    // More Accurate & Expanded Phone Guy Lines
+    // Even More Phone Guy Lines
     const phoneGuyLines = {
-      1: "Hello? Hello? Uh, I wanted to record a message for you to help you get settled in on your first night. Um, I actually worked in that office before you. I'm finishing up my last week now... So, just focus on getting through the night. Check the cameras and remember to close the doors only when necessary. Gotta conserve power. Alright, good night.",
+      1: "Hello? Hello? Uh, I wanted to record a message for you... Welcome to Freddy Fazbear's Pizza. I'm finishing up my last week now... So, just focus on getting through the night. Check the cameras and remember to close the doors only when necessary.",
       
-      2: "Uhh, Hello? Hello? Well if you're hearing this and you made it to day two, uh, congrats! I won't talk quite as long this time. Freddy and the others tend to become more active as the week progresses. Don't forget to check the cameras and the door lights. Also, keep an eye on Pirate Cove. Talk to you soon!",
+      2: "Uhh, Hello? Hello? Well if you're hearing this then you made it to day two! Uh, congrats! Freddy and the others tend to become more active as the week progresses. Keep an eye on Pirate Cove.",
       
-      3: "Hello, hello? Hey you're doing great! Most people don’t last this long. I mean, you know, they usually move on to other things by now. Uh, not that you should be worried or anything... Just keep doing what you're doing. See you on the flip side!",
+      3: "Hello hello? Hey you're doing great! Most people don’t last this long. I mean, you know, they usually move on to other things by now. Just keep doing what you're doing.",
       
-      4: "Hello hello? Hey! Wow, day four. I knew you could do it! Listen, I may not be around much longer. Things are getting... a bit crazy around here. If you see something moving, close the door right away. Good luck.",
+      4: "Hello hello? Hey! Wow, day four. Things are getting a bit crazy around here. If you see something moving, close the door right away. Good luck.",
       
-      5: "Hello? Hello? Uh... You're still here? Most people don’t last this long... Listen, if you're hearing this, then... things are probably going to get pretty bad tonight. Just try to make it to 6 AM. I... I hope you can.",
+      5: "Hello? Hello? Uh... You're still here? Listen... if you're hearing this then... things are probably going to get pretty bad tonight. *heavy static* ...just try to make it to 6 AM.",
       
-      6: "Hello? Hello? Uh... If you're here on Night 6... then you're braver than I thought. Or stupider. Either way... good luck. You're gonna need it."
+      6: "Hello? Hello? Uh... If you're here on Night 6... then you're braver than I thought. Good luck. You're gonna need it."
     };
 
     function playPhoneGuy() {
       const message = phoneGuyLines[night] || phoneGuyLines[6];
-      const phoneDiv = document.getElementById("phoneguy");
-      phoneDiv.innerHTML = `📞 <b>Phone Guy:</b> "${message}"`;
-      
+      document.getElementById("phoneguy").innerHTML = `📞 <b>Phone Guy:</b><br>"${message}"`;
       setTimeout(() => {
-        if (gameActive) phoneDiv.innerHTML = "";
-      }, 14000);
+        if (gameActive) document.getElementById("phoneguy").innerHTML = "";
+      }, 17000);
+    }
+
+    function useFlashlight() {
+      document.getElementById("status").textContent = "FLASHLIGHT ON - They hate the light!";
+      setTimeout(() => { if (gameActive) document.getElementById("status").textContent = "Back in office."; }, 1000);
     }
 
     function updateUI() {
@@ -93,33 +112,18 @@
 
     function drainPower() {
       if (!gameActive) return;
-      let drain = 0.7;
-      if (leftDoor) drain += 1.9;
-      if (rightDoor) drain += 1.9;
+      let drain = 0.75;
+      if (leftDoor) drain += 2;
+      if (rightDoor) drain += 2;
       power -= drain;
       if (power <= 0) endGame("Power failed...", "https://picsum.photos/id/1015/900/600");
     }
 
-    function closeLeft() {
-      leftDoor = !leftDoor;
-      document.getElementById("status").textContent = leftDoor ? "LEFT DOOR CLOSED" : "LEFT DOOR OPEN";
-      doorSound.play();
-    }
+    function closeLeft() { leftDoor = !leftDoor; document.getElementById("status").textContent = leftDoor ? "LEFT DOOR CLOSED" : "LEFT DOOR OPEN"; doorSound.play(); }
+    function closeRight() { rightDoor = !rightDoor; document.getElementById("status").textContent = rightDoor ? "RIGHT DOOR CLOSED" : "RIGHT DOOR OPEN"; doorSound.play(); }
 
-    function closeRight() {
-      rightDoor = !rightDoor;
-      document.getElementById("status").textContent = rightDoor ? "RIGHT DOOR CLOSED" : "RIGHT DOOR OPEN";
-      doorSound.play();
-    }
-
-    function toggleCamera() {
-      document.getElementById("status").textContent = "CAMERAS ONLINE...";
-      setTimeout(() => { if (gameActive) document.getElementById("status").textContent = "Back in office."; }, 1600);
-    }
-
-    function checkCameras() {
-      document.getElementById("status").textContent = "Scanning cameras...";
-    }
+    function toggleCamera() { document.getElementById("status").textContent = "CAMERAS ONLINE..."; setTimeout(() => { if (gameActive) document.getElementById("status").textContent = "Back in office."; }, 1400); }
+    function checkCameras() { document.getElementById("status").textContent = "Scanning cameras..."; }
 
     function endGame(message, img = "https://picsum.photos/id/870/900/600") {
       gameActive = false;
@@ -130,21 +134,21 @@
     }
 
     function customNightMenu() {
+      document.getElementById("customMenu").style.display = "block";
+    }
+
+    function startCustomNight() {
       night = 6;
-      power = 100;
-      time = 0;
-      gameActive = true;
-      document.getElementById("status").textContent = "CUSTOM NIGHT ACTIVATED";
-      setTimeout(playPhoneGuy, 600);
+      document.getElementById("customMenu").style.display = "none";
+      document.getElementById("status").textContent = "CUSTOM NIGHT STARTED - MAX DIFFICULTY";
+      setTimeout(playPhoneGuy, 800);
     }
 
     // 1987 Easter Egg
     document.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
         let code = prompt("Enter Secret Code:");
-        if (code === "1987") {
-          endGame("IT'S ME...", "https://picsum.photos/id/201/900/600");
-        }
+        if (code === "1987") endGame("IT'S ME...", "https://picsum.photos/id/201/900/600");
       }
     });
 
@@ -155,22 +159,22 @@
       drainPower();
       updateUI();
 
-      if (Math.random() * 100 < (night * 12 + 12)) {
+      if (Math.random() * 100 < (night * 13 + 15)) {
         let attacker = ["Freddy", "Bonnie", "Chica", "Foxy"][Math.floor(Math.random() * 4)];
         if ((attacker === "Bonnie" && !leftDoor) || (attacker === "Chica" && !rightDoor)) {
           endGame(`${attacker} got you!`);
         }
       }
 
-      if (Math.random() * 100 < night * 2) {
+      if (Math.random() * 100 < night * 2.2) {
         endGame("Golden Freddy appeared...", "https://picsum.photos/id/133/900/600");
       }
-    }, 780);
+    }, 750);
 
     window.onload = () => {
       updateUI();
       document.getElementById("status").textContent = "Night 1 has begun...";
-      setTimeout(playPhoneGuy, 900);
+      setTimeout(playPhoneGuy, 1200);
     };
   </script>
 
